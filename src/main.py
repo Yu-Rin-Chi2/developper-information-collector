@@ -8,10 +8,15 @@ Usage:
 """
 
 import argparse
+import io
 import json
 import os
 import sys
 from datetime import datetime
+
+# Windows cp932 文字化け対策
+if sys.stdout.encoding != "utf-8":
+    sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8")
 
 # プロジェクトルートをパスに追加
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
@@ -69,16 +74,28 @@ def collect_connpass_events(config: dict, ym: str, api_key: str) -> list[dict]:
 
 
 def collect_peatix_events(config: dict) -> list[dict]:
-    """Peatixからイベントを収集する。"""
+    """Peatixからイベントを収集する（各地域の座標で検索）。"""
     peatix_config = config.get("peatix", {})
     keywords = peatix_config.get("keywords", ["ゲーム開発"])
     exclude = peatix_config.get("exclude_keywords", [])
+    locations = peatix_config.get("locations", {})
 
-    print(f"  Peatix: キーワード {keywords} で検索中...")
-    events = peatix_fetch(keywords, exclude)
-    print(f"  → {len(events)} 件取得")
+    all_events = []
+    seen_urls = set()
 
-    return events
+    for region_key, location in locations.items():
+        region_label = config.get("regions", {}).get(region_key, {}).get("label", region_key)
+        print(f"  Peatix ({region_label}): キーワード {keywords} で検索中...")
+        events = peatix_fetch(keywords, exclude, location=location)
+        new_count = 0
+        for event in events:
+            if event["url"] not in seen_urls:
+                seen_urls.add(event["url"])
+                all_events.append(event)
+                new_count += 1
+        print(f"  → {new_count} 件取得 (重複除外済)")
+
+    return all_events
 
 
 def main():

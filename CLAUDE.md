@@ -65,14 +65,15 @@ connpass等          収集・整形              月刊カレンダー         
 
 ## Scraping Target Sites
 
-### 1. connpass
+### 1. connpass（API v2使用）
 
-- **URL**: `https://connpass.com/search/?q=ゲーム開発&start_from=YYYY/MM/DD&start_to=YYYY/MM/DD&sort=`
-- **レンダリング**: 静的HTML（SSR）
-- **取得方法**: `requests` + `BeautifulSoup4`
-- **取得可能データ**: イベント名、日時、場所（住所）、参加状況（○/○人）、リンク
-- **ページネーション**: `?page=N` パラメータ（例: `1 [2] 次へ>>`）
-- **備考**: 日付範囲フィルタ（start_from / start_to）あり。参加費はイベント詳細ページに遷移が必要な場合あり
+- **API**: `https://connpass.com/api/v2/events/`
+- **取得方法**: `requests`（REST API、JSONレスポンス）
+- **認証**: `X-API-Key` ヘッダー（APIキー必要、環境変数 `CONNPASS_API_KEY` で設定）
+- **レートリミット**: 1秒に1リクエスト
+- **主要パラメータ**: `keyword`, `ym`(年月), `prefecture`(都道府県), `order`, `count`, `start`
+- **取得可能データ**: title, started_at, ended_at, address, place, url, accepted/limit
+- **備考**: `prefecture` パラメータで都道府県フィルタが直接可能
 
 ### 2. Peatix
 
@@ -96,8 +97,8 @@ connpass等          収集・整形              月刊カレンダー         
 ## Tech Stack
 
 - **Language**: Python 3.x
-- **Scraping (connpass)**: `requests` + `BeautifulSoup4`（静的HTML）
-- **Scraping (Peatix)**: `Playwright`（SPA対応、ヘッドレスブラウザ）
+- **connpass**: `requests`（公式API v2、JSONレスポンス）
+- **Peatix**: `Playwright`（SPA対応、ヘッドレスブラウザ、User-Agent + locale=ja-JP必須）
 - **Output**: Markdown files（月別・地域別）
 - **Discord連携**: Webhook or Bot（別途実装）
 

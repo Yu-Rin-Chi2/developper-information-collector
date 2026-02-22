@@ -8,9 +8,9 @@
     "base_url": "https://peatix.com/search",
     "keywords": ["ゲーム開発", "ゲーム制作", "Unity", "Unreal", "インディーゲーム"],
     "country": "JP",
-    "location": {
-      "lat": 35.69,
-      "lng": 139.69
+    "locations": {
+      "kanto": {"lat": 35.69, "lng": 139.69},
+      "kansai": {"lat": 34.69, "lng": 135.50}
     },
     "exclude_keywords": [
       "ボードゲーム",

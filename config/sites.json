@@ -4,24 +4,145 @@
     "keywords": ["ゲーム開発"],
     "months_ahead": 6
   },
+  "kokuchpro": {
+    "base_url": "https://www.kokuchpro.com/feature/%E3%82%B2%E3%83%BC%E3%83%A0%E6%A5%AD%E7%95%8C/"
+  },
   "peatix": {
     "base_url": "https://peatix.com/search",
-    "keywords": ["ゲーム開発", "ゲーム制作", "Unity", "Unreal", "インディーゲーム"],
+    "keywords": ["ゲーム開発", "ゲーム制作", "Unity", "Unreal", "インディーゲーム",
+                  "ボードゲーム", "エンジニア 勉強会", "エンタメ"],
     "country": "JP",
     "locations": {
       "kanto": {"lat": 35.69, "lng": 139.69},
       "kansai": {"lat": 34.69, "lng": 135.50}
+    }
+  },
+  "filtering": {
+    "events": {
+      "relevance_keywords": [
+        "ゲーム", "game", "gaming",
+        "unity", "unreal", "godot", "roblox", "rpgツクール",
+        "vr", "ar", "xr", "mr", "メタバース",
+        "インディー", "indie",
+        "igda", "cedec", "tgs", "tigs", "bitssummit",
+        "ボードゲーム", "カードゲーム", "trpg", "テーブルゲーム", "アナログゲーム",
+        "エンタメ", "エンターテイメント", "アニメ", "映像",
+        "プログラミング", "エンジニア",
+        "ハンズオン", "ハッカソン", "ゲームジャム",
+        "lt会", "ライトニングトーク",
+        "3d", "cg", "モデリング", "シェーダー",
+        "クリエイター"
+      ],
+      "exclude_keywords": [
+        "謎解き",
+        "ビジネスゲーム",
+        "健康経営ゲーム",
+        "脱出ゲーム",
+        "人狼",
+        "マーダーミステリー",
+        "婚活",
+        "合コン",
+        "アフタヌーンティー",
+        "音楽祭",
+        "料理",
+        "キャリア",
+        "SEO",
+        "飲み会",
+        "プロンプトエンジニアリング"
+      ]
+    }
+  },
+  "articles": {
+    "free-assets": {
+      "label": "ゲーム用フリーアセットまとめ記事",
+      "qiita": {
+        "queries": [
+          "tag:Unity フリー素材",
+          "tag:ゲーム開発 アセット 無料",
+          "tag:ゲーム開発 フリー素材",
+          "ゲーム 無料 素材 まとめ"
+        ],
+        "per_page": 20,
+        "max_pages": 2
+      },
+      "zenn": {
+        "queries": [
+          {"topicname": "unity", "keyword": "フリー素材", "order": "latest"},
+          {"topicname": "gamedev", "keyword": "アセット", "order": "latest"},
+          {"keyword": "ゲーム 無料素材 まとめ", "order": "latest"}
+        ],
+        "max_pages": 2
+      },
+      "note": {
+        "queries": [
+          "ゲーム開発 フリー素材 まとめ",
+          "Unity 無料アセット まとめ",
+          "ゲーム 素材 無料 おすすめ"
+        ],
+        "max_pages": 2
+      },
+      "relevance_keywords": ["フリー", "無料", "素材", "アセット", "free", "asset", "まとめ"],
+      "exclude_keywords": []
     },
-    "exclude_keywords": [
-      "ボードゲーム",
-      "謎解き",
-      "ビジネスゲーム",
-      "健康経営ゲーム",
-      "カードゲーム",
-      "脱出ゲーム",
-      "人狼",
-      "マーダーミステリー"
-    ]
+    "learning-resources": {
+      "label": "Unity学習リソース記事",
+      "qiita": {
+        "queries": [
+          "tag:Unity 入門",
+          "tag:Unity 初心者",
+          "tag:Unity チュートリアル",
+          "tag:Unity 学習"
+        ],
+        "per_page": 20,
+        "max_pages": 2
+      },
+      "zenn": {
+        "queries": [
+          {"topicname": "unity", "keyword": "入門", "order": "latest"},
+          {"topicname": "unity", "keyword": "チュートリアル", "order": "latest"},
+          {"topicname": "unity", "keyword": "学習", "order": "latest"}
+        ],
+        "max_pages": 2
+      },
+      "note": {
+        "queries": [
+          "Unity 入門 まとめ",
+          "Unity 初心者 学習",
+          "Unity チュートリアル おすすめ"
+        ],
+        "max_pages": 2
+      },
+      "relevance_keywords": ["unity", "学習", "入門", "チュートリアル", "初心者", "tutorial", "勉強"],
+      "exclude_keywords": []
+    },
+    "peripherals": {
+      "label": "ゲーム開発周辺機器レビュー記事",
+      "qiita": {
+        "queries": [],
+        "per_page": 20,
+        "max_pages": 1
+      },
+      "zenn": {
+        "queries": [],
+        "max_pages": 1
+      },
+      "note": {
+        "queries": [
+          "ゲーム開発 デバイス おすすめ",
+          "ゲーム開発 キーボード おすすめ",
+          "ゲーム開発 モニター おすすめ",
+          "ゲーム開発 環境 周辺機器",
+          "ゲーム開発 ペンタブ おすすめ"
+        ],
+        "max_pages": 3
+      },
+      "relevance_keywords": [
+        "レビュー", "おすすめ", "比較", "周辺機器", "デバイス",
+        "キーボード", "マウス", "モニター", "ディスプレイ", "ヘッドセット",
+        "コントローラー", "ペンタブ", "ワコム", "デスク", "椅子", "PC"
+      ],
+      "exclude_keywords": []
+    }
   },
   "regions": {
     "kanto": {

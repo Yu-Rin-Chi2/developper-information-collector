@@ -1,0 +1,43 @@
+name: Weekly Event Collection
+
+on:
+  schedule:
+    # 毎週日曜 08:00 JST = 土曜 23:00 UTC
+    - cron: '0 23 * * 6'
+  workflow_dispatch: # 手動実行も可能
+
+jobs:
+  collect-events:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: 'pip'
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Install Playwright browsers
+        run: playwright install chromium --with-deps
+
+      - name: Run event collection
+        run: python src/main.py --events
+
+      - name: Commit and push results
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add output/events/
+          if git diff --cached --quiet; then
+            echo "No changes to commit"
+          else
+            git commit -m "chore: update weekly event data ($(date -u +%Y-%m-%d))"
+            git push
+          fi

@@ -6,14 +6,11 @@ from datetime import datetime
 from urllib.parse import quote
 from playwright.async_api import async_playwright
 
+from filters import should_exclude, is_relevant
+from http_utils import USER_AGENT
+
 
 SEARCH_URL = "https://peatix.com/search"
-
-USER_AGENT = (
-    "Mozilla/5.0 (Windows NT 10.0; Win64; x64) "
-    "AppleWebKit/537.36 (KHTML, like Gecko) "
-    "Chrome/120.0.0.0 Safari/537.36"
-)
 
 MONTH_MAP = {
     "1月": 1, "2月": 2, "3月": 3, "4月": 4,
@@ -33,11 +30,15 @@ WEEKDAY_MAP_EN = {
 
 
 async def fetch_events_async(keywords: list[str], exclude_keywords: list[str],
+                             relevance_keywords: list[str] | None = None,
                              location: dict | None = None,
                              max_pages: int = 3) -> list[dict]:
     """Peatixからイベントを取得する（非同期）。
 
     Args:
+        keywords: 検索キーワードリスト
+        exclude_keywords: 除外キーワードリスト
+        relevance_keywords: 関連性キーワードリスト（タイトルに1つ以上含む必要あり）
         location: {"lat": float, "lng": float} 検索中心座標。Noneの場合はデフォルト
     """
     all_events = []
@@ -70,7 +71,9 @@ async def fetch_events_async(keywords: list[str], exclude_keywords: list[str],
                         continue
                     if event["url"] in seen_urls:
                         continue
-                    if _should_exclude(event["title"], exclude_keywords):
+                    if should_exclude(event["title"], exclude_keywords):
+                        continue
+                    if relevance_keywords and not is_relevant(event["title"], relevance_keywords):
                         continue
                     seen_urls.add(event["url"])
                     all_events.append(event)
@@ -82,9 +85,93 @@ async def fetch_events_async(keywords: list[str], exclude_keywords: list[str],
                 else:
                     break
 
+        # 参加費情報を各イベント詳細ページから取得
+        if all_events:
+            print(f"    参加費情報を取得中 ({len(all_events)} 件)...")
+            await _fetch_fees(page, all_events)
+
         await browser.close()
 
     return all_events
+
+
+async def _fetch_fees(page, events: list[dict]):
+    """各イベントの詳細ページから参加費情報を取得する。"""
+    for i, event in enumerate(events):
+        url = event.get("url", "")
+        if not url:
+            continue
+        try:
+            await page.goto(url, wait_until="domcontentloaded", timeout=15000)
+            await page.wait_for_timeout(2000)
+
+            fee = await page.evaluate("""
+            () => {
+                // 「チケット」セクションからチケット情報を取得
+                const headings = document.querySelectorAll('h3');
+                for (const h of headings) {
+                    if (h.textContent.trim() === 'チケット') {
+                        const list = h.closest('div')?.parentElement?.querySelector('ul');
+                        if (list) {
+                            const items = list.querySelectorAll('li');
+                            const tickets = [];
+                            for (const item of items) {
+                                const text = item.textContent.trim();
+                                if (text) tickets.push(text);
+                            }
+                            if (tickets.length > 0) return tickets.join(' / ');
+                        }
+                    }
+                }
+
+                // フォールバック: ページ全体から料金情報を探す
+                const text = document.body.innerText;
+                // 「参加費」「参 加 費」パターン
+                const feeMatch = text.match(/参\s*加\s*費\s*[：:]\s*(.+)/);
+                if (feeMatch) return feeMatch[1].trim().split('\\n')[0];
+
+                // 「料金」パターン
+                const priceMatch = text.match(/料\s*金\s*[：:]\s*(.+)/);
+                if (priceMatch) return priceMatch[1].trim().split('\\n')[0];
+
+                return '';
+            }
+            """)
+
+            if fee:
+                event["fee"] = _normalize_fee(fee)
+        except Exception:
+            pass
+
+
+def _normalize_fee(fee_text: str) -> str:
+    """参加費テキストを短く整形する。
+
+    明確な料金情報（無料/金額）がある場合のみ値を返す。
+    """
+    if not fee_text:
+        return ""
+
+    text = fee_text.strip()
+
+    # 無料チェック
+    if "無料" in text or "free" in text.lower():
+        if "¥" not in text and "円" not in text:
+            return "無料"
+
+    # 金額を抽出 (¥1,000 or 1000円 等)
+    yen_match = re.search(r"[¥￥][\s]*([0-9,]+)", text)
+    if yen_match:
+        amount = yen_match.group(1).replace(",", "")
+        return f"¥{int(amount):,}"
+
+    en_match = re.search(r"([0-9,]+)\s*円", text)
+    if en_match:
+        amount = en_match.group(1).replace(",", "")
+        return f"¥{int(amount):,}"
+
+    # 明確な金額情報がない場合は空を返す
+    return ""
 
 
 async def _extract_events_from_page(page) -> list[dict]:
@@ -233,14 +320,11 @@ def _parse_event_data(data: dict) -> dict | None:
     }
 
 
-def _should_exclude(title: str, exclude_keywords: list[str]) -> bool:
-    """タイトルに除外キーワードが含まれるか判定する。"""
-    title_lower = title.lower()
-    return any(kw.lower() in title_lower for kw in exclude_keywords)
-
-
 def fetch_events(keywords: list[str], exclude_keywords: list[str],
+                 relevance_keywords: list[str] | None = None,
                  location: dict | None = None,
                  max_pages: int = 3) -> list[dict]:
     """Peatixからイベントを取得する（同期ラッパー）。"""
-    return asyncio.run(fetch_events_async(keywords, exclude_keywords, location, max_pages))
+    return asyncio.run(fetch_events_async(
+        keywords, exclude_keywords, relevance_keywords, location, max_pages
+    ))

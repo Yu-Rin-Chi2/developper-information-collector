@@ -1,0 +1,36 @@
+{
+  "connpass": {
+    "base_url": "https://connpass.com/search/",
+    "keywords": ["ゲーム開発"],
+    "months_ahead": 6
+  },
+  "peatix": {
+    "base_url": "https://peatix.com/search",
+    "keywords": ["ゲーム開発", "ゲーム制作", "Unity", "Unreal", "インディーゲーム"],
+    "country": "JP",
+    "location": {
+      "lat": 35.69,
+      "lng": 139.69
+    },
+    "exclude_keywords": [
+      "ボードゲーム",
+      "謎解き",
+      "ビジネスゲーム",
+      "健康経営ゲーム",
+      "カードゲーム",
+      "脱出ゲーム",
+      "人狼",
+      "マーダーミステリー"
+    ]
+  },
+  "regions": {
+    "kanto": {
+      "label": "関東",
+      "prefectures": ["東京", "神奈川", "千葉", "埼玉", "茨城", "栃木", "群馬"]
+    },
+    "kansai": {
+      "label": "関西",
+      "prefectures": ["大阪", "京都", "兵庫", "奈良", "滋賀", "和歌山"]
+    }
+  }
+}

@@ -1,10 +1,10 @@
-name: Weekly Event Collection
+name: Weekly Event Collection (Disabled)
 
+# NOTE: このワークフローは無効化されています。
+# プロジェクトは C:\Users\satok\Documents\Obsidian Vault\AutoBatch\GameDevInfo に移管され、
+# 定期実行は Windows タスクスケジューラ（GameDevInfo_WeeklyEvents）で管理されています。
 on:
-  schedule:
-    # 毎週日曜 08:00 JST = 土曜 23:00 UTC
-    - cron: '0 23 * * 6'
-  workflow_dispatch: # 手動実行も可能
+  workflow_dispatch: # 手動実行のみ可能（schedule トリガー無効化）
 
 jobs:
   collect-events:
